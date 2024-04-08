@@ -1,4 +1,4 @@
-# strideflex_application_1
+# Strideflex Application
 
 A new Flutter project.
 
