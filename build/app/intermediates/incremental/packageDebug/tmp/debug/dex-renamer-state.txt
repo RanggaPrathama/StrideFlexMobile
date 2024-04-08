@@ -1,0 +1,4 @@
+#Sun Apr 07 18:41:00 ICT 2024
+base.0=C\:\\Users\\RANGGA\\Documents\\PROJEK APAPUN\\StrideFlex Mobile\\strideflex_application_1\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
