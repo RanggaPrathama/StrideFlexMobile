@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:strideflex_application_1/model/brandModel.dart';
@@ -21,11 +22,20 @@ class ListBrand extends StatelessWidget {
               width: 2)),
       child:
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-        SvgPicture.asset(
-          "${brand.image}",
-          height: 30,
-          color: dipilih ? Colors.white : null,
-        ),
+        // SvgPicture.network(
+        //   brand.getImage,
+        //   height: 30,
+        //   color: dipilih ? Colors.white : null,
+        // ),
+        CachedNetworkImage(
+            imageUrl: brand.getImage,
+            height: 30,
+            color: dipilih ? Colors.white : null,
+            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                Center(
+                    child: CircularProgressIndicator(
+                  value: downloadProgress.progress,
+                ))),
         SizedBox(width: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

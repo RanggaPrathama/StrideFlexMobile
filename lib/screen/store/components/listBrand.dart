@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:strideflex_application_1/model/brandModel.dart';
@@ -27,10 +28,16 @@ class ListBrandCustom extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(
-            "${brandList.image}",
-            width: 35,
-            color: isTap ? Colors.white : Colors.black,
+          CachedNetworkImage(
+            imageUrl: brandList.getImage,
+            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                Center(
+                    child: CircularProgressIndicator(
+              value: downloadProgress.progress,
+            )),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+            height: 40,
+            color: isTap ? Colors.white : null,
           ),
           SizedBox(
             width: 15,

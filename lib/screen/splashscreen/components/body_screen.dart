@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:strideflex_application_1/screen/login/login.dart';
-
-import 'package:strideflex_application_1/screen/splashscreen/components/splash_content.dart';
+import 'package:strideflex_application_1/core.dart'; // Ganti dengan path ke HomePage Anda
 
 class BodyScreen extends StatefulWidget {
-  const BodyScreen({super.key});
-
+  const BodyScreen({Key? key, this.isLoading = false}) : super(key: key);
+  final bool isLoading;
   @override
   State<BodyScreen> createState() => BodyScreenState();
 }
@@ -50,7 +48,11 @@ class BodyScreenState extends State<BodyScreen> {
   @override
   Widget build(BuildContext context) {
     bool isLastPage = pageSaatIni == dataSplash.length - 1;
-
+    if (widget.isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     return SafeArea(
       child: SizedBox(
         height: MediaQuery.of(context).size.height,

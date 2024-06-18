@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:strideflex_application_1/screen/store/store.dart';
+import 'package:strideflex_application_1/screen/accountSetting/profile/profile.dart';
 import 'package:strideflex_application_1/screen/favourite/favourite.dart';
 import 'package:strideflex_application_1/screen/homepage/homepage.dart';
-import 'package:strideflex_application_1/screen/accountSetting/profile/profile.dart';
+import 'package:strideflex_application_1/screen/store/store.dart';
 
 class MyScreen extends StatefulWidget {
   const MyScreen({Key? key}) : super(key: key);
-  static String routeName = "/";
+  static String routeName = "/screen";
 
   @override
   State<MyScreen> createState() => _MyScreenState();
 }
 
 class _MyScreenState extends State<MyScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   var pageNow = 0;
 
   void setPageNav(index) {
-    setState(() {
-      pageNow = index;
-    });
+    if (mounted) {
+      setState(() {
+        pageNow = index;
+      });
+    }
   }
 
   final pages = [
@@ -28,10 +31,12 @@ class _MyScreenState extends State<MyScreen> {
     const FavouriteScreen(),
     const ProfileScreen()
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: pages[pageNow],
+        key: _scaffoldKey,
         bottomNavigationBar: GNav(
           onTabChange: setPageNav,
           selectedIndex: pageNow,

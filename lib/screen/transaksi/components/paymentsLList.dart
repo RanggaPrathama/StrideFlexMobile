@@ -2,9 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:strideflex_application_1/Theme.dart';
 
 class PaymentList extends StatelessWidget {
-  const PaymentList({super.key, required this.text});
+  const PaymentList({
+    super.key,
+    required this.text,
+    required this.value,
+    required this.groupValue,
+    required this.onChanged,
+  });
 
   final String text;
+  final int value;
+  final int groupValue;
+  final Function(int?) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +30,18 @@ class PaymentList extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Radio(
-              value: 1,
-              groupValue: "TES",
-              onChanged: (value) {},
+            Radio<int>(
+              value: value,
+              groupValue: groupValue,
+              onChanged: onChanged,
               activeColor: MyColor.secondaryColor,
             ),
             Expanded(
-                child: Text(
-              text,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            )),
+              child: Text(
+                text,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+            ),
             Icon(
               Icons.wallet,
               color: MyColor.secondaryColor,

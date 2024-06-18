@@ -215,5 +215,21 @@ List<ShoesModel> shoes = [
         Colors.red,
         Colors.white,
         Colors.yellow,
+      ]),
+  ShoesModel(
+      idShoes: 13,
+      nameShoes: 'Nike Air One',
+      price: 13000000,
+      kategoriUmur: "Child",
+      description:
+          'Sepatu Nike Air One hadir dengan desain yang sporty dan nyaman untuk digunakan sehari-hari. Dibuat dengan teknologi terkini untuk memberikan kenyamanan dan performa maksimal bagi penggunanya. Cocok untuk berbagai aktivitas, dari berlari hingga berjalan santai.',
+      image: [
+        'assets/shoes/adidas-Yeezy-Boost-350-V2-Cinder-Product.png'
+      ],
+      colors: [
+        Colors.black,
+        Colors.red,
+        Colors.white,
+        Colors.yellow,
       ])
 ];

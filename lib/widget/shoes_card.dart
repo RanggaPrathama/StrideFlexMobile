@@ -1,33 +1,76 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:strideflex_application_1/model/shoesModel.dart';
-import 'package:strideflex_application_1/screen/detailpage/detailShoes.dart';
+import 'package:strideflex_application_1/model/shoesModelAPI.dart';
+import 'package:strideflex_application_1/services/wishlistService.dart';
 
 class ShoesCard extends StatefulWidget {
-  const ShoesCard({Key? key, required this.shoes, required this.action})
-      : super(key: key);
+  const ShoesCard({
+    Key? key,
+    required this.shoes,
+    required this.action,
+    required this.idUser,
+    required this.isLiked,
+    required this.refreshPage,
+  }) : super(key: key);
 
   final ShoesModel shoes;
   final VoidCallback action;
+  final bool isLiked;
+  final int idUser;
+  final VoidCallback refreshPage;
 
   @override
   _ShoesCardState createState() => _ShoesCardState();
 }
 
 class _ShoesCardState extends State<ShoesCard> {
-  // bool isFavorite = false;
+  late bool isFavorite;
+  final WishListService wishlistService = WishListService();
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.isLiked ?? false;
+  }
+
+  Future<void> toggleLiked() async {
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+
+    // try {
+    if (isFavorite) {
+      print("tambah like");
+      await wishlistService.addWishlist(
+        widget.idUser,
+        widget.shoes.idDetailSepatu!,
+      );
+    } else {
+      print("hapuslIKED");
+      await wishlistService.deleteWishlist(
+        widget.idUser,
+        widget.shoes.idDetailSepatu!,
+      );
+    }
+    widget.refreshPage();
+    // } catch (e) {
+    /// setState(() {
+    //isFavorite = !isFavorite;
+    //});
+    //print(e);
+    //ScaffoldMessenger.of(context).showSnackBar(
+    // SnackBar(content: Text('Failed to update wishlist: $e')),
+    //);
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          widget.action();
-        });
-      },
+      onTap: widget.action,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 7),
         width: MediaQuery.of(context).size.width,
-        // height: MediaQuery.of(context).size.height * 2,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Colors.white,
@@ -47,31 +90,31 @@ class _ShoesCardState extends State<ShoesCard> {
             Stack(
               children: [
                 InkWell(
-                  onTap: () {
-                    setState(() {
-                      widget.action();
-                    });
-                  },
+                  onTap: widget.action,
                   child: Container(
                     padding: EdgeInsets.all(10),
                     width: MediaQuery.of(context).size.width * 0.4,
-                    child: Image.asset("${widget.shoes.image[0]}"),
+                    child: CachedNetworkImage(
+                      imageUrl: widget.shoes.imageUrl,
+                      progressIndicatorBuilder:
+                          (context, url, downloadProgress) => Center(
+                        child: CircularProgressIndicator(
+                          value: downloadProgress.progress,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                    ),
                   ),
                 ),
                 Positioned(
-                  left: MediaQuery.of(context).size.width * 0.31,
+                  left: MediaQuery.of(context).size.width * 0.3,
                   child: IconButton(
-                    color: Colors.blue,
-                    onPressed: () {
-                      setState(() {
-                        widget.shoes.isLiked = !widget.shoes.isLiked;
-                      });
-                    },
+                    onPressed: toggleLiked,
                     icon: Icon(
-                      widget.shoes.isLiked
+                      isFavorite
                           ? Icons.favorite_rounded
                           : Icons.favorite_border_rounded,
-                      color: widget.shoes.isLiked ? Colors.red : null,
+                      color: isFavorite ? Colors.red : null,
                     ),
                   ),
                 ),
@@ -79,28 +122,23 @@ class _ShoesCardState extends State<ShoesCard> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 1),
-              child: Container(
-                child: Text(
-                  "${widget.shoes.nameShoes}",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
+              child: Text(
+                "${widget.shoes.nameShoes}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Container(
-                //alignment: Alignment.centerLeft,
-                child: Text(
-                  "${widget.shoes.description}",
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 14,
-                  ),
+              child: Text(
+                "${widget.shoes.nameShoes} - ${widget.shoes.warna}",
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -108,7 +146,7 @@ class _ShoesCardState extends State<ShoesCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  "Rp.${widget.shoes.price}",
+                  "Rp.${widget.shoes.hargaSepatu}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -116,7 +154,7 @@ class _ShoesCardState extends State<ShoesCard> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade400,
                     borderRadius: BorderRadius.circular(8),

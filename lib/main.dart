@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:strideflex_application_1/Theme.dart';
-import 'package:strideflex_application_1/route.dart';
-import 'package:strideflex_application_1/screen/splashscreen/splash_screen.dart';
+import 'package:strideflex_application_1/core.dart';
 
 void main() {
   // WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -21,13 +18,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(context),
       //home: const SplashScreen(),
-
-      initialRoute: SplashScreen.routeName,
+      initialRoute: Login.routeName,
       routes: routers,
     );
   }
 }
-
 
 // ThemeData(
 //         fontFamily: 'Poppins',

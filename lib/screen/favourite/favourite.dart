@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:strideflex_application_1/Theme.dart';
-import 'package:strideflex_application_1/model/shoesModel.dart';
-import 'package:strideflex_application_1/screen/detailpage/detailShoes.dart';
-import 'package:strideflex_application_1/widget/shoes_card.dart';
-import 'package:strideflex_application_1/widget/verifNotif.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:strideflex_application_1/core.dart';
+import 'package:strideflex_application_1/model/shoesModelAPI.dart';
+import 'package:strideflex_application_1/model/wishListModel.dart';
+import 'package:strideflex_application_1/services/wishlistService.dart';
 
 class FavouriteScreen extends StatefulWidget {
   const FavouriteScreen({Key? key}) : super(key: key);
@@ -14,60 +14,114 @@ class FavouriteScreen extends StatefulWidget {
 }
 
 class _FavouriteScreenState extends State<FavouriteScreen> {
-  late List<ShoesModel> favoritShoes;
+  final WishListService wishlistService = WishListService();
+  final ShoesService shoesService = ShoesService();
+  int? idUser;
+  List<ShoesModel> shoesList = [];
+  List<WishlistModel> wishList = [];
+  List<ShoesModel> favoriteShoes = [];
 
   @override
   void initState() {
     super.initState();
+    getUser();
+  }
 
-    favoritShoes = shoes.where((shoe) => shoe.isLiked == true).toList();
+  Future<void> getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString("token");
+    if (token != null && token.isNotEmpty) {
+      decodeToken(token);
+    } else {
+      Navigator.pushReplacementNamed(context, Login.routeName);
+    }
+  }
 
-    favoritShoes.forEach((shoe) {
-      print(shoe.nameShoes);
+  void decodeToken(String token) {
+    Map<String, dynamic> payload = JwtDecoder.decode(token);
+    int idUserPayload = payload["id_user"];
+    setState(() {
+      idUser = idUserPayload;
     });
+    fetchWishList(idUserPayload);
+  }
+
+  Future<void> fetchShoesList() async {
+    try {
+      final shoesListAPI = await shoesService.getShoes();
+      setState(() {
+        shoesList = shoesListAPI ?? [];
+        favoriteShoes = shoesList
+            .where((shoe) =>
+                wishList.any((wish) => wish.idDetail == shoe.idDetailSepatu))
+            .toList();
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> fetchWishList(int idUser) async {
+    final wishListAPI = await wishlistService.getWishlist(idUser);
+    setState(() {
+      wishList = wishListAPI ?? [];
+    });
+    fetchShoesList();
+  }
+
+  Future<void> refreshPage() async {
+    print("cie aku masuk");
+    await fetchWishList(idUser!);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text("WishList", style: headingText),
-        ),
-        body: SafeArea(
-            child: SingleChildScrollView(
-          child: Column(
-            children: [
-              favoritShoes.isEmpty
-                  ? VerifNotif(
-                      image: "assets/icon/favorite.png",
-                      text: "There is no wish list yet",
-                    )
-                  : Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                      width: double.infinity,
-                      height: MediaQuery.of(context).size.height,
-                      child: GridView.count(
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 15,
-                        crossAxisSpacing: 6,
-                        physics: NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        children: List.generate(
-                            favoritShoes.length,
-                            (index) => ShoesCard(
-                                shoes: favoritShoes[index],
-                                action: () {
-                                  Navigator.pushNamed(
-                                      context, DetailShoes.routeName,
-                                      arguments: ShoesDetailsArguments(
-                                          shoes: favoritShoes[index]));
-                                })),
-                      ),
-                    ),
-            ],
-          ),
-        )));
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text("WishList", style: headingText),
+      ),
+      body: SafeArea(
+        child: favoriteShoes.isEmpty
+            ? VerifNotif(
+                image: "assets/icon/favorite.png",
+                text: "There is no wish list yet",
+              )
+            : GridView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 15,
+                  crossAxisSpacing: 6,
+                ),
+                itemCount: favoriteShoes.length,
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemBuilder: (context, index) {
+                  var isLiked = wishList.any(
+                    (wish) =>
+                        wish.idDetail == favoriteShoes[index].idDetailSepatu,
+                  );
+                  isLiked = isLiked ?? false;
+                  return ShoesCard(
+                    shoes: favoriteShoes[index],
+                    isLiked: isLiked,
+                    idUser: idUser!,
+                    refreshPage: refreshPage,
+                    action: () {
+                      Navigator.pushNamed(
+                        context,
+                        DetailShoes.routeName,
+                        arguments: ShoesDetailsArguments(
+                          idshoes: favoriteShoes[index].idSepatuVersion,
+                          idDetail_sepatu: favoriteShoes[index].idDetailSepatu,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+      ),
+    );
   }
 }
